@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Today's Top 3</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%239DAA92'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+/* Theme colours are the CSS variables at the top: change them to restyle the widget. */
+:root{--bg:#F8F3EA;--card-bg:#FFFFFF;--text:#4A3A30;--text-muted:#8C7A6B;--clay:#C4886C;--clay-hover:#B3765A;--clay-shadow:#A86F55;--sage:#9DAA92;--sand:#D8B98F;--line:#DDD0C3;--soft:#F8F3EA;--card-radius:18px;--card-shadow:0 8px 0 var(--sand),0 14px 28px rgba(74,58,48,.07)}
+@media (prefers-color-scheme:dark){:root{--bg:#2F2620;--card-bg:#3A2D25;--text:#F8F3EA;--text-muted:#B8A99C;--line:#524237;--sand:#231B16;--soft:#2F2620;--card-shadow:0 8px 0 var(--sand),0 16px 30px rgba(0,0,0,.4)}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',Arial,sans-serif;font-weight:600;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{display:flex;align-items:flex-start;justify-content:center;padding:16px}
+.widget-card{width:100%;max-width:520px;background:var(--card-bg);border:2.5px solid var(--line);border-radius:var(--card-radius);box-shadow:var(--card-shadow);padding:20px 20px 22px;transition:background-color .25s,border-color .25s}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px}
+.title-wrap{display:flex;align-items:center;gap:10px;min-width:0}
+.status-dot{width:12px;height:12px;border-radius:50%;background:var(--clay);flex:none}
+.card-title{font-family:'Fraunces',Georgia,serif;font-weight:800;font-size:1.25rem;letter-spacing:-.02em;line-height:1.2}
+.meta{font-size:.8rem;font-weight:800;color:var(--text-muted);letter-spacing:.04em}
+button{font-family:inherit;cursor:pointer}
+.btn{min-height:44px;border-radius:26px;border:2.5px solid var(--line);background:transparent;color:var(--text);font-weight:800;font-size:.95rem;padding:0 18px;transition:background-color .2s,transform .15s,box-shadow .2s,border-color .2s}
+.btn:hover{border-color:var(--clay)}
+.btn:focus-visible,.chip:focus-visible,.icon-btn:focus-visible,input:focus-visible{outline:3px solid var(--clay);outline-offset:2px}
+.btn-primary{background:var(--clay);border-color:var(--clay);color:#fff;box-shadow:0 4px 0 var(--clay-shadow)}
+.btn-primary:hover{background:var(--clay-hover);border-color:var(--clay-hover)}
+.btn-primary:active{transform:translateY(3px);box-shadow:0 1px 0 var(--clay-shadow)}
+.chip{min-height:36px;padding:0 14px;border-radius:99px;border:2px solid var(--line);background:var(--soft);color:var(--text-muted);font-weight:800;font-size:.85rem;transition:all .2s}
+.chip:hover{border-color:var(--clay);color:var(--text)}
+.chip.on{background:var(--text);border-color:var(--text);color:var(--card-bg)}
+.icon-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:transparent;color:var(--text-muted);font-size:1rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;transition:all .2s}
+.icon-btn:hover{border-color:var(--clay);color:var(--clay)}
+input[type=text],input[type=number]{font-family:inherit;font-weight:700;font-size:.95rem;color:var(--text);background:var(--soft);border:2px solid var(--line);border-radius:12px;min-height:44px;padding:0 14px;width:100%}
+input::placeholder{color:var(--text-muted);opacity:.8}
+.bar{height:10px;border-radius:99px;background:var(--soft);border:2px solid var(--line);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--sage);border-radius:99px;transition:width .35s ease}
+.check{width:28px;height:28px;flex:none;border-radius:9px;border:2.5px solid var(--sage);background:transparent;color:#fff;display:inline-flex;align-items:center;justify-content:center;transition:all .2s}
+.check.on{background:var(--sage)}
+.check svg{width:16px;height:16px;opacity:0;transition:opacity .15s}
+.check.on svg{opacity:1}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.row3{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.row3 input{flex:1}
+.row3.done input{text-decoration:line-through;color:var(--text-muted);background:transparent}
+.num{font-family:'Fraunces',Georgia,serif;font-weight:800;color:var(--clay);width:16px;text-align:center}
+.prog{margin:16px 0 6px}
+.prog-top{display:flex;justify-content:space-between;font-size:.82rem;font-weight:800;color:var(--text-muted);margin-bottom:6px;letter-spacing:.03em}
+.step{margin-top:16px;padding:14px;border-radius:14px;background:var(--soft);border:2px dashed var(--line)}
+.step label{display:block;font-size:.75rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px}
+.foot{display:flex;justify-content:space-between;align-items:center;margin-top:16px;gap:10px}
+.win{color:var(--sage);font-weight:800;font-size:.9rem;min-height:1.2em}
+[data-theme="dark"]{--bg:#2F2620;--card-bg:#3A2D25;--text:#F8F3EA;--text-muted:#B8A99C;--line:#524237;--sand:#231B16;--soft:#2F2620;--card-shadow:0 8px 0 var(--sand),0 16px 30px rgba(0,0,0,.4)}
+[data-theme="light"]{--bg:#F8F3EA;--card-bg:#FFFFFF;--text:#4A3A30;--text-muted:#8C7A6B;--line:#DDD0C3;--sand:#D8B98F;--soft:#F8F3EA;--card-shadow:0 8px 0 var(--sand),0 14px 28px rgba(74,58,48,.07)}
+#wdThemeBtn{position:fixed;right:8px;bottom:8px;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--card-bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.75;transition:opacity .2s,border-color .2s;z-index:50;padding:0}#wdThemeBtn:hover{opacity:1;border-color:var(--clay,#C4886C)}#wdThemeBtn:focus-visible{outline:3px solid var(--clay,#C4886C);outline-offset:2px}#wdThemeBtn svg{width:16px;height:16px}
+</style></head>
+<body>
+<main class="widget-card">
+ <div class="card-header"><div class="title-wrap"><span class="status-dot" style="background:var(--sage)"></span><h1 class="card-title">Today's top 3</h1></div><span class="meta" id="date"></span></div>
+ <div id="rows"></div>
+ <div class="prog"><div class="prog-top"><span id="ptxt">0 of 3 done</span><span class="win" id="win"></span></div><div class="bar"><i id="pbar" style="width:0"></i></div></div>
+ <div class="step"><label for="tiny">The very first tiny step</label><input id="tiny" type="text" maxlength="90" placeholder="e.g. open the document"></div>
+ <div class="foot"><span class="meta">Three is enough.</span><button class="btn" id="nd" type="button">New day</button></div>
+</main>
+<script>
+
+var store={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+var CHECK_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+
+var K='wd_top3_v1';
+var s=store.get(K,{items:[{t:'',d:false},{t:'',d:false},{t:'',d:false}],step:''});
+var rows=$('#rows');
+function today(){return new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}
+function render(){
+ rows.innerHTML='';
+ s.items.forEach(function(it,i){
+  var d=document.createElement('div');d.className='row3'+(it.d?' done':'');
+  d.innerHTML='<span class="num">'+(i+1)+'</span><input type="text" maxlength="80" placeholder="Priority '+(i+1)+'" value="'+esc(it.t)+'" aria-label="Priority '+(i+1)+'"><button type="button" class="check'+(it.d?' on':'')+'" aria-label="Mark priority '+(i+1)+' done" aria-pressed="'+it.d+'">'+CHECK_SVG+'</button>';
+  d.querySelector('input').oninput=function(e){it.t=e.target.value;store.set(K,s)};
+  d.querySelector('.check').onclick=function(){if(!it.t.trim())return;it.d=!it.d;store.set(K,s);render()};
+  rows.appendChild(d)});
+ var n=s.items.filter(function(x){return x.d}).length;
+ $('#ptxt').textContent=n+' of 3 done';$('#pbar').style.width=(n/3*100)+'%';
+ $('#win').textContent=n===3?'All done. Lovely.':(n>0?'Good going.':'');
+ $('#tiny').value=s.step;$('#date').textContent=today();
+}
+$('#tiny').oninput=function(e){s.step=e.target.value;store.set(K,s)};
+var armed=false,t0;
+$('#nd').onclick=function(){var b=$('#nd');
+ if(!armed){armed=true;b.textContent='Clear today?';clearTimeout(t0);t0=setTimeout(function(){armed=false;b.textContent='New day'},3000);return}
+ armed=false;b.textContent='New day';s={items:[{t:'',d:false},{t:'',d:false},{t:'',d:false}],step:''};store.set(K,s);render()};
+render();
+
+</script><button id="wdThemeBtn" type="button" aria-label="Switch between light and dark mode" title="Light / dark"></button><script>(function(){var K='wd_theme',b=document.getElementById('wdThemeBtn');if(!b)return;
+var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+function get(){try{return localStorage.getItem(K)}catch(e){return null}}
+function set(v){try{localStorage.setItem(K,v)}catch(e){}}
+function sys(){return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+function cur(){return document.documentElement.getAttribute('data-theme')||sys()}
+function apply(t){document.documentElement.setAttribute('data-theme',t);b.innerHTML=t==='dark'?SUN:MOON}
+var s=get();if(s==='dark'||s==='light')apply(s);else b.innerHTML=sys()==='dark'?SUN:MOON;
+b.onclick=function(){var n=cur()==='dark'?'light':'dark';set(n);apply(n)};})();</script></body></html>
