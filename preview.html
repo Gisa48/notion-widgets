@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notion Widgets Preview Showcase (Etsy Collection)</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23C4886C'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F8F3EA;
+      --card-bg: #FFFFFF;
+      --text: #4A3A30;
+      --text-muted: #8C7A6B;
+      --clay: #C4886C;
+      --sage: #9DAA92;
+      --sand: #D8B98F;
+      --line: #DDD0C3;
+      --card-radius: 18px;
+    }
+
+    body.dark-mode {
+      --bg: #221A15;
+      --card-bg: #2F2620;
+      --text: #F8F3EA;
+      --text-muted: #B8A99C;
+      --line: #4E3C31;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Nunito', Arial, sans-serif;
+      padding: 30px 20px 60px;
+      transition: background-color 250ms ease, color 250ms ease;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+
+    /* Showcase Top Bar */
+    header.showcase-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.76rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      background: var(--sage);
+      color: #FFFFFF;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+      max-width: 620px;
+      margin: 0 auto 20px;
+      line-height: 1.5;
+    }
+
+    /* Controls Bar */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .btn-group {
+      display: inline-flex;
+      background: var(--card-bg);
+      border: 1.5px solid var(--line);
+      border-radius: 30px;
+      padding: 3px;
+      box-shadow: 0 4px 10px rgba(74, 58, 48, 0.04);
+    }
+
+    .ctrl-btn {
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: transparent;
+      border: none;
+      border-radius: 24px;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: all 180ms ease;
+    }
+
+    .ctrl-btn.active {
+      background: var(--clay);
+      color: #FFFFFF;
+    }
+
+    .toggle-dark-btn {
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: var(--card-bg);
+      border: 1.5px solid var(--line);
+      border-radius: 30px;
+      padding: 7px 14px;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 10px rgba(74, 58, 48, 0.04);
+      transition: all 180ms ease;
+    }
+
+    .toggle-dark-btn:hover {
+      border-color: var(--text-muted);
+    }
+
+    /* Side-by-side showcase grid */
+    .showcase-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      align-items: flex-start;
+    }
+
+    .preview-card {
+      background: var(--card-bg);
+      border: 2px solid var(--line);
+      border-radius: var(--card-radius);
+      box-shadow: 0 8px 0 var(--sand), 0 12px 24px rgba(74, 58, 48, 0.06);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: width 240ms ease, background-color 250ms ease, border-color 250ms ease;
+      width: 460px;
+      max-width: 100%;
+    }
+
+    .card-meta {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 8px 12px;
+      border-bottom: 1.5px dashed var(--line);
+      margin-bottom: 12px;
+    }
+
+    .widget-tag {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    .link-direct {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--clay);
+      text-decoration: none;
+    }
+
+    .link-direct:hover {
+      text-decoration: underline;
+    }
+
+    .iframe-wrapper {
+      width: 100%;
+      border-radius: 14px;
+      overflow: hidden;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+    }
+
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      background: transparent;
+      transition: height 200ms ease;
+    }
+
+    /* Instructions Box */
+    .quick-guide {
+      max-width: 950px;
+      margin: 45px auto 0;
+      background: var(--card-bg);
+      border: 2px solid var(--line);
+      border-radius: var(--card-radius);
+      padding: 24px;
+      box-shadow: 0 6px 0 var(--sand);
+    }
+
+    .quick-guide h2 {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 1.35rem;
+      margin-bottom: 10px;
+      color: var(--text);
+    }
+
+    .quick-guide ol {
+      padding-left: 20px;
+      line-height: 1.7;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+
+    .quick-guide code {
+      background: var(--bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      font-size: 0.86rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="showcase-header">
+      <span class="badge">Etsy Stationery Collection</span>
+      <h1>ADHD Notion Embed Widgets</h1>
+      <p class="subtitle">Warm paper stationery aesthetic, calm colors, driftless focus timer, and dopamine reward menu.</p>
+      
+      <!-- Interactive preview controls -->
+      <div class="controls-bar">
+        <div class="btn-group" role="group" aria-label="Simulate Notion column width">
+          <button class="ctrl-btn" data-width="320px">320px (Narrow)</button>
+          <button class="ctrl-btn active" data-width="460px">460px (Default)</button>
+          <button class="ctrl-btn" data-width="650px">650px (Wide)</button>
+          <button class="ctrl-btn" data-width="100%">100% (Fluid)</button>
+        </div>
+
+        <button class="toggle-dark-btn" id="toggleThemeBtn">
+          🌓 Toggle Light / Dark Mode
+        </button>
+      </div>
+    </header>
+
+    <main class="showcase-grid">
+      <!-- Widget 1 Card -->
+      <article class="preview-card" id="cardPomo">
+        <div class="card-meta">
+          <span class="widget-tag">1. Focus Timer</span>
+          <a class="link-direct" href="pomodoro/index.html" target="_blank" rel="noopener">Open in new tab &nearr;</a>
+        </div>
+        <div class="iframe-wrapper">
+          <iframe id="iframePomo" src="pomodoro/index.html" title="Focus Timer Preview"></iframe>
+        </div>
+      </article>
+
+      <!-- Widget 2 Card -->
+      <article class="preview-card" id="cardDopa">
+        <div class="card-meta">
+          <span class="widget-tag">2. Dopamine Menu</span>
+          <a class="link-direct" href="dopamine-menu/index.html" target="_blank" rel="noopener">Open in new tab &nearr;</a>
+        </div>
+        <div class="iframe-wrapper">
+          <iframe id="iframeDopa" src="dopamine-menu/index.html" title="Dopamine Menu Preview" style="height: 650px;"></iframe>
+        </div>
+      </article>
+    </main>
+
+    <section class="quick-guide">
+      <h2>Notion Integration Quick Start</h2>
+      <ol>
+        <li>Host these files on <strong>GitHub Pages</strong>, <strong>Cloudflare Pages</strong>, or <strong>Vercel</strong> (100% free and permanent).</li>
+        <li>In your Notion page, type <code>/embed</code> and press enter.</li>
+        <li>Paste the direct URL to <code>pomodoro/index.html</code> or <code>dopamine-menu/index.html</code>.</li>
+        <li>Drag the Notion handles to resize width and height to your taste.</li>
+      </ol>
+    </section>
+  </div>
+
+  <script>
+    const widthBtns = document.querySelectorAll('.ctrl-btn');
+    const cardPomo = document.getElementById('cardPomo');
+    const cardDopa = document.getElementById('cardDopa');
+    const toggleThemeBtn = document.getElementById('toggleThemeBtn');
+    const iframePomo = document.getElementById('iframePomo');
+    const iframeDopa = document.getElementById('iframeDopa');
+
+    widthBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        widthBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const targetWidth = btn.getAttribute('data-width');
+        cardPomo.style.width = targetWidth;
+        cardDopa.style.width = targetWidth;
+      });
+    });
+
+    let isDark = false;
+    toggleThemeBtn.addEventListener('click', () => {
+      isDark = !isDark;
+      document.body.classList.toggle('dark-mode', isDark);
+
+      // Pass theme override to iframes
+      const themeValue = isDark ? 'dark' : 'light';
+      try {
+        iframePomo.contentDocument.documentElement.setAttribute('data-theme', themeValue);
+        iframeDopa.contentDocument.documentElement.setAttribute('data-theme', themeValue);
+      } catch (e) {
+        // Fallback cross-origin messaging if served under distinct origins
+        iframePomo.contentWindow.postMessage({ theme: themeValue }, '*');
+        iframeDopa.contentWindow.postMessage({ theme: themeValue }, '*');
+      }
+    });
+  </script>
+</body>
+</html>

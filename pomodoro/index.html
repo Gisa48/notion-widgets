@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Focus Timer</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%23C4886C'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================================================
+       CUSTOMIZABLE THEME VARIABLES (Change your colors here)
+       ========================================================================== */
+    :root {
+      --bg: #F8F3EA;             /* Warm stationery cream */
+      --card-bg: #FFFFFF;        /* Pure white paper card */
+      --text: #4A3A30;           /* Deep espresso brown */
+      --text-muted: #8C7A6B;     /* Muted warm grey-brown */
+      --clay: #C4886C;           /* Terracotta / primary accent */
+      --clay-hover: #B3765A;     /* Darker clay on hover */
+      --clay-active: #9F654C;    /* Active button state */
+      --sage: #9DAA92;           /* Gentle sage green */
+      --sage-light: #E7ECE4;     /* Sage tint for badges */
+      --sand: #D8B98F;           /* Warm sand for layered shadow */
+      --line: #DDD0C3;           /* Notebook paper ruled border */
+      --focus-ring: #C4886C;     /* Accessible keyboard focus */
+      --card-radius: 18px;
+      --card-shadow: 0 8px 0 var(--sand), 0 14px 28px rgba(74, 58, 48, 0.07);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #2F2620;
+        --card-bg: #3A2D25;
+        --text: #F8F3EA;
+        --text-muted: #B8A99C;
+        --line: #524237;
+        --sand: #231B16;
+        --card-shadow: 0 8px 0 var(--sand), 0 16px 30px rgba(0, 0, 0, 0.4);
+        --sage-light: #414B3E;
+      }
+    }
+
+    /* Manual theme override support if embedded with ?theme=dark or ?theme=light */
+    [data-theme="dark"] {
+      --bg: #2F2620;
+      --card-bg: #3A2D25;
+      --text: #F8F3EA;
+      --text-muted: #B8A99C;
+      --line: #524237;
+      --sand: #231B16;
+      --card-shadow: 0 8px 0 var(--sand), 0 16px 30px rgba(0, 0, 0, 0.4);
+      --sage-light: #414B3E;
+    }
+    [data-theme="light"] {
+      --bg: #F8F3EA;
+      --card-bg: #FFFFFF;
+      --text: #4A3A30;
+      --text-muted: #8C7A6B;
+      --line: #DDD0C3;
+      --sand: #D8B98F;
+      --card-shadow: 0 8px 0 var(--sand), 0 14px 28px rgba(74, 58, 48, 0.07);
+      --sage-light: #E7ECE4;
+    }
+
+    /* ==========================================================================
+       RESET & BASE STYLES
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Nunito', Arial, sans-serif;
+      font-weight: 600;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    /* ==========================================================================
+       CARD CONTAINER (Stationery look with stacked paper effect)
+       ========================================================================== */
+    .widget-card {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      border: 2.5px solid var(--line);
+      border-radius: var(--card-radius);
+      box-shadow: var(--card-shadow);
+      padding: 22px 20px 20px;
+      position: relative;
+      transition: background-color 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+    }
+
+    /* Header */
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .status-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: var(--sage);
+      flex-shrink: 0;
+      transition: background-color 250ms ease, transform 250ms ease;
+    }
+
+    .status-dot.active {
+      background-color: var(--clay);
+      transform: scale(1.15);
+    }
+
+    .card-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 36px;
+      height: 36px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 200ms ease;
+    }
+
+    .icon-btn:hover {
+      color: var(--text);
+      background-color: rgba(0, 0, 0, 0.04);
+      border-color: var(--line);
+    }
+
+    .icon-btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    /* Mode selector tabs (pills) */
+    .modes-nav {
+      display: flex;
+      background: var(--bg);
+      border: 1.5px solid var(--line);
+      border-radius: 30px;
+      padding: 3px;
+      gap: 4px;
+      margin-bottom: 22px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 8px 6px;
+      font-family: 'Nunito', Arial, sans-serif;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-radius: 24px;
+      cursor: pointer;
+      transition: all 220ms ease;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .mode-tab:hover:not(.active) {
+      color: var(--text);
+    }
+
+    .mode-tab.active {
+      background: var(--card-bg);
+      color: var(--text);
+      box-shadow: 0 2px 6px rgba(74, 58, 48, 0.08);
+    }
+
+    .mode-tab:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 1px;
+    }
+
+    /* Circular SVG Timer Stage */
+    .timer-stage {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .timer-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .track-circle {
+      stroke: var(--line);
+      stroke-width: 9;
+      fill: none;
+      transition: stroke 250ms ease;
+    }
+
+    .progress-circle {
+      stroke: var(--sage);
+      stroke-width: 9;
+      stroke-linecap: round;
+      fill: none;
+      transition: stroke-dashoffset 300ms ease, stroke 300ms ease;
+    }
+
+    .progress-circle.break-mode {
+      stroke: var(--clay);
+    }
+
+    .timer-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .time-digits {
+      font-family: 'Fraunces', Georgia, serif;
+      font-weight: 800;
+      font-size: 2.85rem;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      color: var(--text);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .mode-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+
+    /* Daily Cycle Counter */
+    .cycle-counter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .dots-row {
+      display: flex;
+      gap: 7px;
+    }
+
+    .cycle-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      border: 2px solid var(--line);
+      background-color: transparent;
+      transition: all 250ms ease;
+    }
+
+    .cycle-dot.filled {
+      background-color: var(--sage);
+      border-color: var(--sage);
+      box-shadow: 0 0 0 2px var(--card-bg), 0 0 0 3px var(--sage);
+    }
+
+    .cycle-text {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    /* Actions Bar */
+    .actions-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      font-family: 'Nunito', Arial, sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      min-height: 46px;
+      border-radius: 26px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 0 18px;
+      transition: background-color 200ms ease, transform 150ms ease, box-shadow 200ms ease, border-color 200ms ease;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .btn:active {
+      transform: translateY(1.5px);
+    }
+
+    .btn-primary {
+      flex: 1.4;
+      background: var(--clay);
+      color: #FFFFFF;
+      border: 2px solid var(--clay);
+      box-shadow: 0 4px 0 var(--clay-active);
+    }
+
+    .btn-primary:hover {
+      background: var(--clay-hover);
+      border-color: var(--clay-hover);
+    }
+
+    .btn-primary:active {
+      box-shadow: 0 1px 0 var(--clay-active);
+    }
+
+    .btn-secondary {
+      flex: 1;
+      background: transparent;
+      color: var(--text);
+      border: 2px solid var(--line);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      display: none;
+      margin-top: 20px;
+      padding-top: 18px;
+      border-top: 1.5px dashed var(--line);
+      animation: fadeIn 240ms ease;
+    }
+
+    .settings-panel.open {
+      display: block;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .setting-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .setting-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .setting-input {
+      width: 100%;
+      height: 38px;
+      background: var(--bg);
+      border: 1.5px solid var(--line);
+      border-radius: 8px;
+      padding: 0 8px;
+      font-family: 'Nunito', Arial, sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--text);
+      text-align: center;
+      transition: border-color 200ms ease;
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: var(--clay);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 4px;
+    }
+
+    .toggle-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--line);
+      border-radius: 24px;
+      transition: 240ms ease;
+    }
+
+    .slider::before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: #FFFFFF;
+      border-radius: 50%;
+      transition: 240ms ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+    }
+
+    input:checked + .slider {
+      background-color: var(--sage);
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(20px);
+    }
+
+    input:focus-visible + .slider {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .quick-test-btn {
+      margin-top: 10px;
+      width: 100%;
+      font-size: 0.78rem;
+      padding: 6px 10px;
+      min-height: 32px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px dashed var(--line);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      transition: all 200ms ease;
+    }
+
+    .quick-test-btn:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+      background-color: var(--bg);
+    }
+
+    /* Animation & Accessibility */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 340px) {
+      .widget-card {
+        padding: 16px 14px 16px;
+      }
+      .timer-stage {
+        width: 170px;
+        height: 170px;
+        margin-bottom: 16px;
+      }
+      .time-digits {
+        font-size: 2.35rem;
+      }
+      .mode-tab {
+        font-size: 0.76rem;
+        padding: 6px 2px;
+      }
+      .btn {
+        font-size: 0.85rem;
+        padding: 0 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="widget-card" role="region" aria-label="Pomodoro Focus Timer">
+    <!-- Card Header -->
+    <header class="card-header">
+      <div class="title-wrap">
+        <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+        <h1 class="card-title">Focus Timer</h1>
+      </div>
+      <button class="icon-btn" id="settingsBtn" aria-label="Open timer settings" aria-expanded="false" title="Settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </button>
+    </header>
+
+    <!-- Mode Selector Pills -->
+    <nav class="modes-nav" role="tablist" aria-label="Timer modes">
+      <button class="mode-tab active" role="tab" id="tab-focus" aria-selected="true" data-mode="focus">Focus</button>
+      <button class="mode-tab" role="tab" id="tab-short" aria-selected="false" data-mode="short">Short break</button>
+      <button class="mode-tab" role="tab" id="tab-long" aria-selected="false" data-mode="long">Long break</button>
+    </nav>
+
+    <!-- Circular SVG Timer Stage -->
+    <div class="timer-stage" aria-live="off">
+      <svg class="timer-svg" viewBox="0 0 200 200">
+        <circle class="track-circle" cx="100" cy="100" r="88"></circle>
+        <circle class="progress-circle" id="progressCircle" cx="100" cy="100" r="88" stroke-dasharray="552.92" stroke-dashoffset="0"></circle>
+      </svg>
+      <div class="timer-overlay">
+        <div class="time-digits" id="timeDisplay">25:00</div>
+        <span class="mode-label" id="modeStatusLabel">Stay present</span>
+      </div>
+    </div>
+
+    <!-- Daily Focus Tracker Dots -->
+    <div class="cycle-counter" aria-label="Daily focus progress">
+      <div class="dots-row" id="cycleDotsRow" aria-hidden="true">
+        <span class="cycle-dot"></span>
+        <span class="cycle-dot"></span>
+        <span class="cycle-dot"></span>
+        <span class="cycle-dot"></span>
+      </div>
+      <span class="cycle-text" id="cycleText">Today: 0 of 4</span>
+    </div>
+
+    <!-- Controls -->
+    <div class="actions-row">
+      <button class="btn btn-primary" id="startPauseBtn" aria-label="Start timer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <polygon id="playIconPoly" points="5 3 19 12 5 21 5 3"></polygon>
+        </svg>
+        <span id="startBtnText">Start</span>
+      </button>
+      <button class="btn btn-secondary" id="resetBtn" aria-label="Reset timer">Reset</button>
+      <button class="btn btn-secondary" id="skipBtn" aria-label="Skip to next session">Skip</button>
+    </div>
+
+    <!-- Settings Drawer -->
+    <section class="settings-panel" id="settingsPanel" aria-label="Timer duration settings">
+      <div class="settings-grid">
+        <div class="setting-item">
+          <label class="setting-label" for="focusMinInput">Focus (m)</label>
+          <input class="setting-input" id="focusMinInput" type="number" min="1" max="90" value="25">
+        </div>
+        <div class="setting-item">
+          <label class="setting-label" for="shortMinInput">Short (m)</label>
+          <input class="setting-input" id="shortMinInput" type="number" min="1" max="45" value="5">
+        </div>
+        <div class="setting-item">
+          <label class="setting-label" for="longMinInput">Long (m)</label>
+          <input class="setting-input" id="longMinInput" type="number" min="1" max="60" value="15">
+        </div>
+      </div>
+
+      <div class="toggle-row">
+        <span class="toggle-label">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          </svg>
+          Soft audio chime
+        </span>
+        <label class="switch" aria-label="Enable sound chime">
+          <input type="checkbox" id="soundToggle">
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <button type="button" class="quick-test-btn" id="quickTestBtn">
+        ⚡ 10s Fast Test Mode (verify completed cycle)
+      </button>
+    </section>
+  </main>
+
+  <script>
+    /* ==========================================================================
+       POMODORO TIMER LOGIC (ADHD-friendly, driftless timestamp calculations)
+       ========================================================================== */
+    (function () {
+      // Safe LocalStorage wrapper
+      const storage = {
+        get(key, fallback) {
+          try {
+            const item = localStorage.getItem(key);
+            return item ? JSON.parse(item) : fallback;
+          } catch (e) {
+            return fallback;
+          }
+        },
+        set(key, val) {
+          try {
+            localStorage.setItem(key, JSON.stringify(val));
+          } catch (e) {
+            /* no-op for sandboxed iframes */
+          }
+        }
+      };
+
+      // Defaults
+      const DEFAULT_DURATIONS = { focus: 25, short: 5, long: 15 };
+      let durations = storage.get('pomo_durations', DEFAULT_DURATIONS);
+      let soundEnabled = storage.get('pomo_sound', false);
+
+      // Daily sessions count (resets automatically at midnight)
+      const todayKey = new Date().toISOString().slice(0, 10);
+      let dailyData = storage.get('pomo_daily', { date: todayKey, count: 0 });
+      if (dailyData.date !== todayKey) {
+        dailyData = { date: todayKey, count: 0 };
+        storage.set('pomo_daily', dailyData);
+      }
+
+      // State variables
+      let currentMode = 'focus'; // 'focus' | 'short' | 'long'
+      let isRunning = false;
+      let totalSeconds = durations.focus * 60;
+      let remainingSeconds = totalSeconds;
+      let targetEndTime = null;
+      let timerInterval = null;
+
+      // Circle circumference for 2 * PI * 88 ~= 552.92
+      const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 88;
+
+      // DOM Elements
+      const timeDisplay = document.getElementById('timeDisplay');
+      const progressCircle = document.getElementById('progressCircle');
+      const modeStatusLabel = document.getElementById('modeStatusLabel');
+      const statusDot = document.getElementById('statusDot');
+      const startPauseBtn = document.getElementById('startPauseBtn');
+      const startBtnText = document.getElementById('startBtnText');
+      const playIconPoly = document.getElementById('playIconPoly');
+      const resetBtn = document.getElementById('resetBtn');
+      const skipBtn = document.getElementById('skipBtn');
+      const settingsBtn = document.getElementById('settingsBtn');
+      const settingsPanel = document.getElementById('settingsPanel');
+      const focusMinInput = document.getElementById('focusMinInput');
+      const shortMinInput = document.getElementById('shortMinInput');
+      const longMinInput = document.getElementById('longMinInput');
+      const soundToggle = document.getElementById('soundToggle');
+      const quickTestBtn = document.getElementById('quickTestBtn');
+      const cycleDotsRow = document.getElementById('cycleDotsRow');
+      const cycleText = document.getElementById('cycleText');
+      const tabs = {
+        focus: document.getElementById('tab-focus'),
+        short: document.getElementById('tab-short'),
+        long: document.getElementById('tab-long')
+      };
+
+      // Gentle Web Audio Bell Chime (Pure synthesized sound, 0 assets)
+      let audioCtx = null;
+      function playSoftChime() {
+        if (!soundEnabled) return;
+        try {
+          const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+          if (!AudioContextClass) return;
+          if (!audioCtx) audioCtx = new AudioContextClass();
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+
+          const now = audioCtx.currentTime;
+          
+          // Dual pleasant harmonic sine tones (528 Hz Love/Calm tone + 1056 Hz soft overtone)
+          const osc1 = audioCtx.createOscillator();
+          const osc2 = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(528, now);
+
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(1056, now);
+
+          // Gentle bell envelope: fast attack (20ms), smooth warm decay (1.8s)
+          gain.gain.setValueAtTime(0.0001, now);
+          gain.gain.exponentialRampToValueAtTime(0.28, now + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.8);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc1.start(now);
+          osc2.start(now);
+          osc1.stop(now + 1.85);
+          osc2.stop(now + 1.85);
+        } catch (e) {
+          console.warn('Audio chime notice:', e);
+        }
+      }
+
+      // Format seconds as MM:SS
+      function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      // Update UI components
+      function renderUI() {
+        // Time numbers
+        const timeStr = formatTime(remainingSeconds);
+        timeDisplay.textContent = timeStr;
+
+        // Document title for quick glances
+        const modeCapital = currentMode.charAt(0).toUpperCase() + currentMode.slice(1);
+        document.title = `(${timeStr}) ${modeCapital} — Focus Timer`;
+
+        // SVG Progress Ring
+        const progress = totalSeconds > 0 ? (totalSeconds - remainingSeconds) / totalSeconds : 0;
+        const offset = CIRCLE_CIRCUMFERENCE - (progress * CIRCLE_CIRCUMFERENCE);
+        progressCircle.style.strokeDashoffset = Math.max(0, Math.min(CIRCLE_CIRCUMFERENCE, offset));
+
+        // Colors & labels
+        if (currentMode === 'focus') {
+          progressCircle.classList.remove('break-mode');
+          modeStatusLabel.textContent = isRunning ? 'Stay in flow' : 'Ready to begin';
+        } else {
+          progressCircle.classList.add('break-mode');
+          modeStatusLabel.textContent = isRunning ? 'Breathe & recharge' : 'Rest a moment';
+        }
+
+        // Status indicator dot
+        if (isRunning) {
+          statusDot.classList.add('active');
+        } else {
+          statusDot.classList.remove('active');
+        }
+
+        // Daily dots
+        const dots = cycleDotsRow.querySelectorAll('.cycle-dot');
+        const count = dailyData.count;
+        dots.forEach((dot, index) => {
+          if (index < (count % 4 === 0 && count > 0 ? 4 : count % 4)) {
+            dot.classList.add('filled');
+          } else {
+            dot.classList.remove('filled');
+          }
+        });
+        cycleText.textContent = `Today: ${count} of 4`;
+      }
+
+      // Driftless tick based on real target timestamp
+      function tick() {
+        if (!isRunning || !targetEndTime) return;
+        const now = Date.now();
+        const diffMs = targetEndTime - now;
+        remainingSeconds = Math.max(0, Math.ceil(diffMs / 1000));
+        renderUI();
+
+        if (remainingSeconds <= 0) {
+          handleSessionComplete();
+        }
+      }
+
+      // Session completion transition
+      function handleSessionComplete() {
+        stopTimer();
+        playSoftChime();
+
+        if (currentMode === 'focus') {
+          dailyData.count += 1;
+          storage.set('pomo_daily', dailyData);
+
+          // Every 4 cycles -> trigger Long Break, otherwise Short Break
+          if (dailyData.count > 0 && dailyData.count % 4 === 0) {
+            setMode('long');
+          } else {
+            setMode('short');
+          }
+        } else {
+          // Break is over -> return to Focus
+          setMode('focus');
+        }
+      }
+
+      function startTimer() {
+        // Unlock Web Audio context on user action
+        if (soundEnabled && !audioCtx) {
+          try {
+            const AudioClass = window.AudioContext || window.webkitAudioContext;
+            if (AudioClass) audioCtx = new AudioClass();
+          } catch (e) {}
+        }
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        isRunning = true;
+        targetEndTime = Date.now() + (remainingSeconds * 1000);
+
+        startBtnText.textContent = 'Pause';
+        playIconPoly.setAttribute('points', '6 4 10 4 10 20 6 20 14 4 18 4 18 20 14 20');
+        startPauseBtn.setAttribute('aria-label', 'Pause timer');
+
+        clearInterval(timerInterval);
+        timerInterval = setInterval(tick, 250); // Frequent checks ensure zero-drift
+        renderUI();
+      }
+
+      function stopTimer() {
+        isRunning = false;
+        targetEndTime = null;
+        clearInterval(timerInterval);
+        timerInterval = null;
+
+        startBtnText.textContent = 'Start';
+        playIconPoly.setAttribute('points', '5 3 19 12 5 21 5 3');
+        startPauseBtn.setAttribute('aria-label', 'Start timer');
+        renderUI();
+      }
+
+      function toggleTimer() {
+        if (isRunning) {
+          stopTimer();
+        } else {
+          startTimer();
+        }
+      }
+
+      function resetTimer() {
+        stopTimer();
+        totalSeconds = (durations[currentMode] || DEFAULT_DURATIONS[currentMode]) * 60;
+        remainingSeconds = totalSeconds;
+        renderUI();
+      }
+
+      function setMode(mode) {
+        currentMode = mode;
+        Object.keys(tabs).forEach(k => {
+          const isActive = k === mode;
+          tabs[k].classList.toggle('active', isActive);
+          tabs[k].setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+        resetTimer();
+      }
+
+      function skipSession() {
+        stopTimer();
+        if (currentMode === 'focus') {
+          setMode('short');
+        } else {
+          setMode('focus');
+        }
+      }
+
+      // Handle visibilitychange to ensure 100% sync when tab wakes up
+      document.addEventListener('visibilitychange', () => {
+        if (isRunning) {
+          tick();
+        }
+      });
+
+      // Event Listeners
+      startPauseBtn.addEventListener('click', toggleTimer);
+      resetBtn.addEventListener('click', resetTimer);
+      skipBtn.addEventListener('click', skipSession);
+
+      Object.entries(tabs).forEach(([m, tab]) => {
+        tab.addEventListener('click', () => {
+          if (currentMode !== m) {
+            setMode(m);
+          }
+        });
+      });
+
+      // Settings toggle
+      settingsBtn.addEventListener('click', () => {
+        const isOpen = settingsPanel.classList.toggle('open');
+        settingsBtn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      });
+
+      // Inputs handling
+      function handleDurationChange() {
+        durations = {
+          focus: Math.max(1, parseInt(focusMinInput.value, 10) || DEFAULT_DURATIONS.focus),
+          short: Math.max(1, parseInt(shortMinInput.value, 10) || DEFAULT_DURATIONS.short),
+          long: Math.max(1, parseInt(longMinInput.value, 10) || DEFAULT_DURATIONS.long)
+        };
+        storage.set('pomo_durations', durations);
+        if (!isRunning) {
+          resetTimer();
+        }
+      }
+
+      focusMinInput.value = durations.focus;
+      shortMinInput.value = durations.short;
+      longMinInput.value = durations.long;
+      focusMinInput.addEventListener('change', handleDurationChange);
+      shortMinInput.addEventListener('change', handleDurationChange);
+      longMinInput.addEventListener('change', handleDurationChange);
+
+      soundToggle.checked = soundEnabled;
+      soundToggle.addEventListener('change', (e) => {
+        soundEnabled = e.target.checked;
+        storage.set('pomo_sound', soundEnabled);
+        if (soundEnabled) {
+          playSoftChime(); // Brief preview chime so user knows how it sounds
+        }
+      });
+
+      // Quick 10s Fast Test Mode for buyer / verification
+      quickTestBtn.addEventListener('click', () => {
+        stopTimer();
+        totalSeconds = 10;
+        remainingSeconds = 10;
+        renderUI();
+        startTimer();
+      });
+
+      // Initial Render
+      resetTimer();
+    })();
+  </script>
+</body>
+</html>
