@@ -54,9 +54,12 @@ input::placeholder{color:var(--text-muted);opacity:.8}
 .prog{margin:16px 0 4px}
 .prog-top{display:flex;justify-content:space-between;font-size:.82rem;font-weight:800;color:var(--text-muted);margin-bottom:6px}
 .foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}
+.hrow{display:contents}
+@media (max-width:440px){.grid{grid-template-columns:repeat(7,1fr);gap:8px 6px}.grid>.hsp{display:none}.hrow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;grid-column:1/-1;padding-bottom:6px;border-bottom:1.5px solid var(--line)}.hrow .name{grid-column:1/6;grid-row:1}.hrow .tot{grid-column:6/8;grid-row:1;align-self:center}.dot{max-width:none;min-height:34px;aspect-ratio:auto;height:34px;border-radius:50%}.dh{font-size:.68rem}}
 [data-theme="dark"]{--bg:#2F2620;--card-bg:#3A2D25;--text:#F8F3EA;--text-muted:#B8A99C;--line:#524237;--sand:#231B16;--soft:#2F2620;--card-shadow:0 8px 0 var(--sand),0 16px 30px rgba(0,0,0,.4)}
 [data-theme="light"]{--bg:#F8F3EA;--card-bg:#FFFFFF;--text:#4A3A30;--text-muted:#8C7A6B;--line:#DDD0C3;--sand:#D8B98F;--soft:#F8F3EA;--card-shadow:0 8px 0 var(--sand),0 14px 28px rgba(74,58,48,.07)}
 #wdThemeBtn{position:fixed;right:8px;bottom:8px;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--card-bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.75;transition:opacity .2s,border-color .2s;z-index:50;padding:0}#wdThemeBtn:hover{opacity:1;border-color:var(--clay,#C4886C)}#wdThemeBtn:focus-visible{outline:3px solid var(--clay,#C4886C);outline-offset:2px}#wdThemeBtn svg{width:16px;height:16px}
+/*touch*/@media (pointer:coarse),(max-width:440px){#wdThemeBtn{width:40px;height:40px;right:10px;bottom:10px}#wdThemeBtn svg{width:18px;height:18px}.check{width:36px;height:36px;border-radius:11px}.check svg{width:20px;height:20px}.icon-btn{width:40px;height:40px}.chip,.pill-btn,.mode-tab{min-height:40px}.delete-item-btn{min-width:36px;min-height:36px}}
 </style></head>
 <body>
 <main class="widget-card">
@@ -80,18 +83,19 @@ var s=store.get(K,{names:['Water','Walk','Vitamins','Sleep by 11','10-min tidy']
 if(s.week!==weekKey()){s.week=weekKey();s.marks=blank();store.set(K,s)}
 var today=(new Date().getDay()+6)%7;
 function render(){
- var g=$('#g');g.innerHTML='<span></span>';
+ var g=$('#g');g.innerHTML='<span class="hsp"></span>';
  DAYS.forEach(function(d,i){var e=document.createElement('div');e.className='dh'+(i===today?' today':'');e.textContent=d;g.appendChild(e)});
- g.appendChild(document.createElement('span'));
+ var sp2=document.createElement('span');sp2.className='hsp';g.appendChild(sp2);
  var done=0;
  s.names.forEach(function(n,r){
+  var row=document.createElement('div');row.className='hrow';
   var inp=document.createElement('input');inp.type='text';inp.className='name';inp.maxLength=18;inp.value=n;inp.setAttribute('aria-label','Habit '+(r+1)+' name');
-  inp.oninput=function(){s.names[r]=inp.value;store.set(K,s)};g.appendChild(inp);
+  inp.oninput=function(){s.names[r]=inp.value;store.set(K,s)};row.appendChild(inp);
   var c=0;
   DAYS.forEach(function(d,i){var b=document.createElement('button');b.type='button';var on=s.marks[r][i];if(on){c++;done++}
    b.className='dot'+(on?' on':'')+(i===today?' today':'');b.setAttribute('aria-label',n+' '+d);b.setAttribute('aria-pressed',on?'true':'false');
-   b.onclick=function(){s.marks[r][i]=on?0:1;store.set(K,s);render()};g.appendChild(b)});
-  var t=document.createElement('span');t.className='tot';t.textContent=c+'/7';g.appendChild(t)});
+   b.onclick=function(){s.marks[r][i]=on?0:1;store.set(K,s);render()};row.appendChild(b)});
+  var t=document.createElement('span');t.className='tot';t.textContent=c+'/7';row.appendChild(t);g.appendChild(row)});
  $('#ptxt').textContent=done+' of 35 this week';$('#pbar').style.width=(done/35*100)+'%';
  $('#wk').textContent=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short'});
 }
