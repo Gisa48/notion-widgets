@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brain Dump & Priority Matrix</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='80'>%F0%9F%A7%A0</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EDE9F7;--card-bg:#FFFFFF;--text:#2B2545;--text-muted:#8983A8;--ink:#5B4FCF;--ink-hover:#4C41B8;--peach:#FFB79C;--sage:#6FA69A;--line:#DAD3F0;--soft:#F5F2FC;--radius:20px}
+@media (prefers-color-scheme:dark){:root{--bg:#2A2140;--card-bg:#3B324F;--text:#F5EFFA;--text-muted:#C2B6D6;--line:#564A6E;--soft:#251D3A}}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Manrope',Arial,sans-serif;font-weight:500;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{display:flex;justify-content:center;padding:18px}
+.wrap{width:100%;max-width:680px}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+
+.head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.brain{font-size:40px;line-height:1;flex:none;filter:drop-shadow(0 3px 0 rgba(0,0,0,.08))}
+.head h1{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.6rem;flex:1}
+.stat{font-size:.8rem;font-weight:700;color:var(--ink);background:var(--soft);border-radius:99px;padding:6px 14px;white-space:nowrap}
+
+.capture{display:flex;gap:8px;margin-bottom:12px}
+input[type=text]{font-family:inherit;font-weight:600;font-size:.95rem;color:var(--text);background:var(--card-bg);border:2px solid var(--line);border-radius:14px;min-height:46px;padding:0 16px;width:100%}
+input::placeholder{color:var(--text-muted);opacity:.85}
+.btn{min-height:46px;border-radius:14px;border:none;background:var(--ink);color:#fff;font-weight:700;font-size:.95rem;padding:0 20px;box-shadow:0 4px 0 var(--ink-hover)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink-hover)}
+
+.inbox{margin-bottom:18px}
+.inbox-label{font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.chiprow{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--card-bg);border:2px solid var(--line);border-radius:99px;padding:8px 16px;font-weight:700;font-size:.85rem;color:var(--text)}
+.chip:hover{border-color:var(--ink)}
+.chip.active{border-color:var(--ink);background:var(--soft)}
+.taghost{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:var(--soft);border:2px dashed var(--ink);border-radius:16px;padding:12px 14px;margin-top:10px}
+.taghost span.lbl{font-size:.72rem;font-weight:800;color:var(--text-muted);margin-right:4px}
+.tagbtn{border:2px solid var(--line);background:var(--card-bg);border-radius:99px;padding:6px 14px;font-weight:700;font-size:.8rem;color:var(--text)}
+.tagbtn.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.tagbtn.on.imp{background:var(--sage);border-color:var(--sage)}
+.sortbtn{margin-left:auto;background:var(--ink);color:#fff;border:none;border-radius:99px;padding:8px 18px;font-weight:700;font-size:.8rem}
+
+.matrix{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.quad{background:var(--card-bg);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 12px;min-height:130px;box-shadow:0 6px 16px rgba(43,37,69,.06)}
+.quad:nth-child(1){transform:rotate(-.6deg)}
+.quad:nth-child(2){transform:rotate(.5deg)}
+.quad:nth-child(3){transform:rotate(.4deg)}
+.quad:nth-child(4){transform:rotate(-.5deg)}
+.quad h4{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.05rem;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.quad.qw h4{color:var(--ink)}
+.quad.bb h4{color:var(--peach)}
+.qi{display:flex;align-items:center;gap:8px;font-size:.85rem;padding:6px 0;border-bottom:1px solid var(--line)}
+.qi:last-child{border-bottom:0}
+.qi span{flex:1;overflow-wrap:anywhere}
+.qi button{background:none;border:none;color:var(--text-muted);font-size:.85rem;flex:none}
+.qi button:hover{color:var(--ink)}
+.qempty{color:var(--text-muted);font-size:.78rem;font-weight:700;opacity:.7}
+
+.surprise{display:flex;justify-content:center;margin-top:18px}
+.surprise button{background:var(--soft);border:2px solid var(--line);color:var(--ink);border-radius:99px;padding:10px 22px;font-weight:700;font-size:.85rem}
+.spotlight{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink);color:#fff;border-radius:18px;padding:16px 20px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:90vw;text-align:center}
+.spotlight b{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.1rem;display:block;margin-top:4px}
+
+#wdThemeBtn{position:fixed;right:8px;bottom:8px;width:32px;height:32px;border-radius:50%;border:2px solid var(--line);background:var(--card-bg);color:var(--text-muted);display:flex;align-items:center;justify-content:center;opacity:.75;z-index:50;padding:0}#wdThemeBtn:hover{opacity:1;border-color:var(--ink)}#wdThemeBtn svg{width:16px;height:16px}
+[data-theme="dark"]{--bg:#2A2140;--card-bg:#3B324F;--text:#F5EFFA;--text-muted:#C2B6D6;--line:#564A6E;--soft:#251D3A}
+[data-theme="light"]{--bg:#EDE9F7;--card-bg:#FFFFFF;--text:#2B2545;--text-muted:#8983A8;--line:#DAD3F0;--soft:#F5F2FC}
+@media (max-width:420px){.matrix{grid-template-columns:1fr}}
+</style></head>
+<body>
+<main class="wrap">
+ <div class="head"><span class="brain">&#129504;</span><h1>Brain Dump</h1><span class="stat" id="stat"></span></div>
+ <form class="capture" id="f"><input id="in" type="text" maxlength="140" placeholder="What's rattling around up there?" aria-label="Add a thought"><button class="btn" type="submit">Catch it</button></form>
+
+ <div class="inbox" id="inboxWrap">
+   <p class="inbox-label">Unsorted</p>
+   <div class="chiprow" id="inbox"></div>
+   <div id="tagArea"></div>
+ </div>
+
+ <div class="matrix" id="matrix"></div>
+
+ <div class="surprise"><button type="button" id="surprise">&#129504; Surprise me with a quick win</button></div>
+</main>
+<div id="spotWrap"></div>
+<script>
+var store={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+function $(s){return document.querySelector(s)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+var K='wd_brain_matrix_v2';
+var s=store.get(K,{items:[]});
+var openId=null;
+function save(){store.set(K,s)}
+
+function renderInbox(){
+ var open=s.items.filter(function(x){return !x.effort||!x.impact});
+ var box=$('#inbox');box.innerHTML='';
+ if(!open.length){box.innerHTML='<span class="qempty">All caught up &mdash; nothing waiting to be sorted.</span>'}
+ open.forEach(function(it){
+  var b=document.createElement('button');b.type='button';b.className='chip'+(openId===it.id?' active':'');b.textContent=it.t;
+  b.onclick=function(){openId=(openId===it.id?null:it.id);render()};
+  box.appendChild(b)
+ });
+ var ta=$('#tagArea');ta.innerHTML='';
+ var it=s.items.filter(function(x){return x.id===openId})[0];
+ if(it){
+  ta.innerHTML='<div class="taghost">'+
+   '<span class="lbl">EFFORT</span>'+
+   '<button type="button" class="tagbtn'+(it.effort==='Low'?' on':'')+'" data-k="effort" data-v="Low">Low</button>'+
+   '<button type="button" class="tagbtn'+(it.effort==='High'?' on':'')+'" data-k="effort" data-v="High">High</button>'+
+   '<span class="lbl" style="margin-left:8px">IMPACT</span>'+
+   '<button type="button" class="tagbtn'+(it.impact==='Low'?' on':'')+'" data-k="impact" data-v="Low">Low</button>'+
+   '<button type="button" class="tagbtn'+(it.impact==='High'?' on imp':'')+'" data-k="impact" data-v="High">High</button>'+
+   '<button type="button" class="sortbtn" id="sortNow">Sort it &rarr;</button>'+
+   '</div>';
+  ta.querySelectorAll('.tagbtn').forEach(function(btn){btn.onclick=function(){it[btn.getAttribute('data-k')]=btn.getAttribute('data-v');save();render()}});
+  var sn=$('#sortNow');
+  sn.disabled=!(it.effort&&it.impact);
+  sn.style.opacity=sn.disabled?.4:1;
+  sn.onclick=function(){if(it.effort&&it.impact){openId=null;save();render()}};
+ }
+}
+function quadItems(effort,impact){return s.items.filter(function(x){return x.effort===effort&&x.impact===impact&&!x.done})}
+function quadHtml(title,icon,effort,impact,cls){
+ var items=quadItems(effort,impact);
+ var h='<div class="quad '+cls+'"><h4>'+icon+' '+title+'</h4>';
+ if(!items.length)h+='<div class="qempty">Nothing here yet</div>';
+ else items.forEach(function(it){h+='<div class="qi"><span>'+esc(it.t)+'</span><button type="button" data-id="'+it.id+'" aria-label="Done">&check;</button></div>'});
+ h+='</div>';return h
+}
+function renderMatrix(){
+ var m=$('#matrix');
+ m.innerHTML=quadHtml('Quick win','&#9889;','Low','High','qw')+quadHtml('Big bet','&#127919;','High','High','bb')+quadHtml('Fill-in','&#127752;','Low','Low','')+quadHtml('Reconsider','&#8987;','High','Low','');
+ m.querySelectorAll('button[data-id]').forEach(function(btn){
+  btn.onclick=function(){var id=Number(btn.getAttribute('data-id'));s.items=s.items.filter(function(x){return x.id!==id});save();render()}
+ });
+}
+function render(){
+ var total=s.items.length,sorted=s.items.filter(function(x){return x.effort&&x.impact}).length;
+ $('#stat').textContent=total?(sorted+'/'+total+' sorted'):'';
+ renderInbox();renderMatrix();
+}
+$('#f').onsubmit=function(e){e.preventDefault();var v=$('#in').value.trim();if(!v)return;
+ s.items.push({id:Date.now()+Math.random(),t:v,effort:null,impact:null});$('#in').value='';save();render()};
+$('#surprise').onclick=function(){
+ var pool=quadItems('Low','High');
+ var sw=$('#spotWrap');
+ if(!pool.length){sw.innerHTML='<div class="spotlight">Nothing sorted as a quick win yet.<b>Tag a few thoughts first &#129504;</b></div>';setTimeout(function(){sw.innerHTML=''},2600);return}
+ var pick=pool[Math.floor(Math.random()*pool.length)];
+ sw.innerHTML='<div class="spotlight">Do this one now<b>'+esc(pick.t)+'</b></div>';
+ setTimeout(function(){sw.innerHTML=''},3200);
+};
+render();
+</script><button id="wdThemeBtn" type="button" aria-label="Switch between light and dark mode" title="Light / dark"></button><script>(function(){var K='wd_theme',b=document.getElementById('wdThemeBtn');if(!b)return;
+var MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+var SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+function get(){try{return localStorage.getItem(K)}catch(e){return null}}
+function set(v){try{localStorage.setItem(K,v)}catch(e){}}
+function sys(){return window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}
+function cur(){return document.documentElement.getAttribute('data-theme')||sys()}
+function apply(t){document.documentElement.setAttribute('data-theme',t);b.innerHTML=t==='dark'?SUN:MOON}
+var s0=get();if(s0==='dark'||s0==='light')apply(s0);else b.innerHTML=sys()==='dark'?SUN:MOON;
+b.onclick=function(){var n=cur()==='dark'?'light':'dark';set(n);apply(n)};})();</script></body></html>
