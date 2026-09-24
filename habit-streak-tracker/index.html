@@ -26,6 +26,7 @@ html[data-bg][data-theme="dark"]{--bg:#1C1714;--line:#3A3029;--medal:#2E2620}
 .sw:hover{transform:scale(1.15)}
 .sw[aria-pressed="true"]{border-color:var(--gold1);box-shadow:0 0 0 2.5px var(--card),0 0 0 4.5px var(--gold1)}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html.embedded body{padding-top:44px}
 html,body{width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:'Outfit',Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 body{display:flex;justify-content:center;padding:14px 16px 20px}
 .wrap{width:100%;max-width:600px}
@@ -84,6 +85,7 @@ input:focus{outline:none;border-color:var(--gold2)}
  <div id="list" role="list"></div>
 </main>
 <script>
+try{if(window.self!==window.top)document.documentElement.classList.add("embedded")}catch(e){document.documentElement.classList.add("embedded")}
 var store={get:function(k,d){try{var v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 function $(s){return document.querySelector(s)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
