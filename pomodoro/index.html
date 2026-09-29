@@ -642,9 +642,6 @@
         </label>
       </div>
 
-      <button type="button" class="quick-test-btn" id="quickTestBtn">
-        ⚡ 10s Fast Test Mode (verify completed cycle)
-      </button>
     </section>
   </main>
 
@@ -973,7 +970,7 @@
       });
 
       // Quick 10s Fast Test Mode for buyer / verification
-      quickTestBtn.addEventListener('click', () => {
+      if (quickTestBtn) quickTestBtn.addEventListener('click', () => {
         stopTimer();
         totalSeconds = 10;
         remainingSeconds = 10;
